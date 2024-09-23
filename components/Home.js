@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Keyboard, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AntDesign } from '@expo/vector-icons';
 
 const Home = ({ navigation }) => {
   const [playerName, setPlayerName] = useState('');
-  const [isNameSubmitted, setIsNameSubmitted] = useState(false); // State to track if name is submitted
+  const [isNameSubmitted, setIsNameSubmitted] = useState(false); 
 
-  // Save player's name and show game rules
   const handleSubmit = async () => {
     if (playerName.trim()) {
       try {
-        await AsyncStorage.setItem('playerName', playerName);  // Store player name
-        Keyboard.dismiss();  // Close keyboard
-        setIsNameSubmitted(true);  // Show game rules after name is submitted
+        await AsyncStorage.setItem('playerName', playerName); 
+        Keyboard.dismiss(); 
+        setIsNameSubmitted(true); 
       } catch (e) {
         console.error(e);
       }
@@ -22,7 +21,6 @@ const Home = ({ navigation }) => {
     }
   };
 
-  // Game rules constants
   const NBR_OF_DICES = 5;
   const NBR_OF_THROWS = 3;
   const MIN_SPOT = 1;
@@ -31,67 +29,66 @@ const Home = ({ navigation }) => {
   const BONUS_POINTS = 50;
 
   const gameRules = `
-    THE GAME: Upper section of the classic Yahtzee dice game. 
-    You have ${NBR_OF_DICES} dices and for every dice, you have ${NBR_OF_THROWS} throws. 
-    After each throw, you can keep dices to get the same dice spot counts as many as possible. 
-    In the end, you must select your points from ${MIN_SPOT} to ${MAX_SPOT}. 
+    THE GAME: Upper section of the classic Yahtzee dice game.
+    You have ${NBR_OF_DICES} dices and for every dice, you have ${NBR_OF_THROWS} throws.
+    After each throw, you can keep dices to get the same dice spot counts as many as possible.
+    In the end, you must select your points from ${MIN_SPOT} to ${MAX_SPOT}.
     Game ends when all points have been selected. The order for selecting those is free.
 
-    POINTS: After each turn, the game calculates the sum for the dices you selected. 
-    Only the dices with the same spot count are calculated. 
+    POINTS: After each turn, the game calculates the sum for the dices you selected.
+    Only the dices with the same spot count are calculated.
     Inside the game, you cannot select the same points from ${MIN_SPOT} to ${MAX_SPOT} again.
 
     GOAL: To get as many points as possible. ${BONUS_POINTS_LIMIT} points is the limit of getting a bonus which gives you ${BONUS_POINTS} points more.
   `;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-
-        <AntDesign name="exclamationcircle" size={48} color="#0088ff" style={styles.icon} />
-
-        <Text style={styles.header}>Welcome to Mini-Yahtzee</Text>
+    <View style={styles.container}>
+        <AntDesign name="exclamationcircle" size={60} color="#0088ff" style={styles.icon} />
       
-      {!isNameSubmitted && (  // Show input only if the name hasn't been submitted
+      {!isNameSubmitted && (
         <>
+          <Text style={styles.header}>Welcome to Mini-Yahtzee</Text>
           <TextInput
             style={styles.input}
             placeholder="Enter your name"
             value={playerName}
             onChangeText={setPlayerName}
             onSubmitEditing={handleSubmit}
-            autoFocus={true}  // Open keyboard automatically
+            autoFocus={true}
             returnKeyType="done"
           />
-          <Button title="OK" onPress={handleSubmit} />
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>OK</Text>
+          </TouchableOpacity>
         </>
       )}
       
-      {isNameSubmitted && (  // Show game rules after the name is submitted
+      {isNameSubmitted && (
         <>
           <Text style={styles.rulesTitle}>Rules of the Game</Text>
           <Text style={styles.rulesText}>{gameRules}</Text>
           <Text style={styles.NameText}>Good Luck, {playerName}!</Text>
-          <Button
-            title="Play"
-            onPress={() => navigation.navigate('Gameboard', { playerName })}
-          />
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Gameboard', { playerName })}>
+            <Text style={styles.buttonText}>Play</Text>
+          </TouchableOpacity>
         </>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: 'space-between',  
     padding: 20,
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 5,
   },
   icon: {
     alignSelf: 'center',
@@ -106,23 +103,34 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   rulesTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 20,
   },
   rulesText: {
-    fontSize: 16,
-    marginTop: 10,
+    fontSize: 17,
     textAlign: 'justify',
+    fontWeight: '500',
+    lineHeight: 22,
   },
   NameText: {
     fontSize: 20,
-    marginStart: 100,
-    marginBottom: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: '#4CAF50',
-    textAlign: 'justify',
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#0088ff',
+    padding: 10,
+    marginBottom: 40,
+    borderRadius: 15,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
