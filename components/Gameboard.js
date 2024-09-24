@@ -5,50 +5,71 @@ import { useRoute } from '@react-navigation/native';
 
 const Gameboard = () => {
   const route = useRoute();
-  const [isDisabled, setIsDisabled] = useState(false);
   const { playerName } = route.params || {};
+  
   const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(3);
-  const [diceThrown, setDiceThrown] = useState(false);
+  const [diceValues, setDiceValues] = useState(Array(5).fill(null)); // Initial state with 5 null values
+  const [lockedDice, setLockedDice] = useState([false, false, false, false, false]); // Track locked dice (initially all false)
   const [totalPoints, setTotalPoints] = useState(0);
-  const diceNumbers = [1, 2, 3, 4, 5, 6]; // For the dice number buttons
-
+  
+  const diceIcons = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
   const NBR_OF_DICES = 5;
-  const NBR_OF_THROWS = 3;
-  const MIN_SPOT = 1;
-  const MAX_SPOT = 6;
   const BONUS_POINTS_LIMIT = 63;
-  const BONUS_POINTS = 50;
 
-  // Handle the throw dices button click
+  // Function to handle dice throwing
   const handleThrowDices = () => {
     if (nbrOfThrowsLeft > 0) {
       setNbrOfThrowsLeft(nbrOfThrowsLeft - 1);
-      setDiceThrown(true);
-      // Logic for throwing dice and updating points will go here
+
+      // If this is the first throw, initialize all diceValues with random numbers
+      const newDiceValues = diceValues.map((value, index) =>
+        value === null || !lockedDice[index] ? Math.floor(Math.random() * 6) + 1 : value
+      );
+      setDiceValues(newDiceValues);
     }
+  };
+
+  // Toggle dice lock state
+  const toggleDiceLock = (index) => {
+    const updatedLocks = [...lockedDice];
+    updatedLocks[index] = !updatedLocks[index]; // Toggle lock
+    setLockedDice(updatedLocks);
   };
 
   return (
     <View style={styles.container}>
       {/* Dice icons */}
       <View style={styles.diceContainer}>
-        {diceThrown ? (
-          <View style={styles.diceRow}>
-            <FontAwesome5 name="dice-one" size={50} color="#0088ff" />
-            <FontAwesome5 name="dice-two" size={50} color="#0088ff" />
-            <FontAwesome5 name="dice-three" size={50} color="#0088ff" />
-            <FontAwesome5 name="dice-four" size={50} color="#0088ff" />
-            <FontAwesome5 name="dice-five" size={50} color="#0088ff" />
-            <FontAwesome5 name="dice-six" size={50} color="#0088ff" />
-          </View>
-        ) : (
+        {diceValues.every((value) => value === null) ? (
+          // Show a single dice icon before the first throw
           <FontAwesome5 name="dice" size={50} color="#0088ff" />
+        ) : (
+          <View style={styles.diceRow}>
+            {diceValues.map((value, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => toggleDiceLock(index)} // Select/unselect the dice
+                style={[
+                  styles.diceTouchable,
+                  lockedDice[index] && styles.lockedDice, // Add different styling for locked dice
+                ]}
+              >
+                <FontAwesome5
+                  name={diceIcons[value - 1]} // Map dice value to FontAwesome icon
+                  size={50}
+                  color={lockedDice[index] ? '#FF6347' : '#0088ff'} // Change color if locked
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
       </View>
 
-      {/* Throws left and "Throw dices" message */}
+      {/* Text for throwing dice */}
       <Text style={styles.throwsText}>Throws left: {nbrOfThrowsLeft}</Text>
-      <Text style={styles.throwDicesText}>Throw dices.</Text>
+      <Text style={styles.throwDicesText}>
+        {nbrOfThrowsLeft < 3 ? 'Select and throw dices again' : 'Throw dices.'}
+      </Text>
 
       {/* Throw dices button */}
       <TouchableOpacity style={styles.button} onPress={handleThrowDices}>
@@ -65,11 +86,10 @@ const Gameboard = () => {
 
       {/* Dice number buttons */}
       <View style={styles.diceNumberContainer}>
-        {diceNumbers.map((num) => (
+        {[1, 2, 3, 4, 5, 6].map((num) => (
           <View key={num} style={styles.diceColumn}>
             <Text style={styles.diceValue}>0</Text>
-            <TouchableOpacity 
-            style={styles.diceButton} disabled={isDisabled}>
+            <TouchableOpacity style={styles.diceButton}>
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
           </View>
@@ -98,6 +118,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 20,
+  },
+  diceTouchable: {
+    padding: 10,
+  },
+  lockedDice: {
+    opacity: 0.6,
   },
   throwsText: {
     fontSize: 20,
