@@ -119,11 +119,11 @@ const Gameboard = () => {
             <TouchableOpacity
               style={[
                 styles.diceButton,
-                selectedNumbers[num - 1] !== 0 && { backgroundColor: "#404040" }, // Tummentaa jos numero on jo valittu
-                nbrOfThrowsLeft > 0 && { opacity: 0.6 }, // Tummentaa napin, jos heittoja on vielä jäljellä
+                selectedNumbers[num - 1] !== 0 && { backgroundColor: "#404040" }, // Darken if the number is already selected
+                nbrOfThrowsLeft > 0 && { opacity: 0.6 }, // Darken the button if there are still rolls left
               ]}
               onPress={() => handleSelectNumber(num)}
-              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0} // Disable, jos numero on jo valittu tai heittoja on jäljellä
+              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0} // Disable if the number has already been selected or there are some rolls left
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
