@@ -11,6 +11,27 @@ const Gameboard = () => {
   const [diceValues, setDiceValues] = useState(Array(5).fill(null)); // Initial state with 5 null values
   const [lockedDice, setLockedDice] = useState([false, false, false, false, false]); // Track locked dice (initially all false)
   const [totalPoints, setTotalPoints] = useState(0);
+  const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0));
+
+
+// Function to process the selected number
+const handleSelectNumber = (selectedNum) => {
+ // Calculate the score based on the selected number and dice values
+  const points = countOccurrences(selectedNum, diceValues) * selectedNum;
+  setTotalPoints(totalPoints + points); // Update totalPoints
+
+  // Prevent rechoise
+  const updatedSelectedNumbers = [...selectedNumbers];
+  updatedSelectedNumbers[selectedNum - 1] = 0; // Reset the selected number
+  setSelectedNumbers(updatedSelectedNumbers);
+};
+
+// Helper function to count occurrences of a number in dice
+const countOccurrences = (num, arr) => {
+  return arr.filter((value) => value === num).length;
+};
+
+
   
   const diceIcons = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
   const NBR_OF_DICES = 5;
@@ -32,8 +53,18 @@ const Gameboard = () => {
   // Toggle dice lock state
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
-    updatedLocks[index] = !updatedLocks[index]; // Toggle lock
+    updatedLocks[index] = !updatedLocks[index]; // Switch locks
     setLockedDice(updatedLocks);
+  
+    if (updatedLocks[index]) {
+      // If the dice is locked, update the selected number
+      const diceValue = diceValues[index];
+      setSelectedNumbers((prevSelectedNumbers) => {
+        const updatedNumbers = [...prevSelectedNumbers];
+        updatedNumbers[diceValue - 1] = diceValue; // Set the selected number
+        return updatedNumbers;
+      });
+    }
   };
 
   return (
@@ -88,13 +119,17 @@ const Gameboard = () => {
       <View style={styles.diceNumberContainer}>
         {[1, 2, 3, 4, 5, 6].map((num) => (
           <View key={num} style={styles.diceColumn}>
-            <Text style={styles.diceValue}>0</Text>
-            <TouchableOpacity style={styles.diceButton}>
+            <Text style={styles.diceValue}>{countOccurrences(num, diceValues) * num}</Text>
+            <TouchableOpacity
+              style={styles.diceButton}
+              onPress={() => handleSelectNumber(num)}
+            >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
           </View>
         ))}
       </View>
+
 
       {/* Player name */}
       <Text style={styles.playerNameText}>Player: {playerName}</Text>
@@ -115,12 +150,12 @@ const styles = StyleSheet.create({
   },
   diceRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly', 
+    alignItems: 'center',
     width: '100%',
-    paddingHorizontal: 20,
   },
   diceTouchable: {
-    padding: 10,
+    padding: 5,
   },
   lockedDice: {
     opacity: 0.6,
@@ -160,13 +195,14 @@ const styles = StyleSheet.create({
   },
   diceNumberContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 30,
+    justifyContent: 'space-evenly',
     width: '100%',
-    paddingHorizontal: 40,
+    marginTop: 30,
+    paddingHorizontal: 10,
   },
   diceColumn: {
     alignItems: 'center',
+    width: '16%',
   },
   diceValue: {
     fontSize: 18,
