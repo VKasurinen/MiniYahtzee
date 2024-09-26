@@ -8,41 +8,57 @@ const Gameboard = () => {
   const { playerName } = route.params || {};
   
   const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(3);
-  const [diceValues, setDiceValues] = useState(Array(5).fill(null)); // Initial state with 5 null values
-  const [lockedDice, setLockedDice] = useState([false, false, false, false, false]); // Track locked dice (initially all false)
+  const [diceValues, setDiceValues] = useState(Array(5).fill(null)); 
+  const [lockedDice, setLockedDice] = useState([false, false, false, false, false]); 
   const [totalPoints, setTotalPoints] = useState(0);
-  const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0));
+  const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0)); // Track selected numbers (1 through 6)
 
+  // Function to process the selected number based on locked dice
+  const handleSelectNumber = (selectedNum) => {
+    if (selectedNumbers[selectedNum - 1] !== 0) {
+      return; // Exit if the number has been selected already
+    }
 
-// Function to process the selected number
-const handleSelectNumber = (selectedNum) => {
- // Calculate the score based on the selected number and dice values
-  const points = countOccurrences(selectedNum, diceValues) * selectedNum;
-  setTotalPoints(totalPoints + points); // Update totalPoints
+    // Calculate the score based on locked dice values matching the selected number
+    const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
+    setTotalPoints(totalPoints + points); // Update total points
 
-  // Prevent rechoise
-  const updatedSelectedNumbers = [...selectedNumbers];
-  updatedSelectedNumbers[selectedNum - 1] = 0; // Reset the selected number
-  setSelectedNumbers(updatedSelectedNumbers);
-};
+    // Mark this number as selected
+    const updatedSelectedNumbers = [...selectedNumbers];
+    updatedSelectedNumbers[selectedNum - 1] = 1; // Mark this number as used
+    setSelectedNumbers(updatedSelectedNumbers);
 
-// Helper function to count occurrences of a number in dice
-const countOccurrences = (num, arr) => {
-  return arr.filter((value) => value === num).length;
-};
+    // Reset locked dice after assigning points
+    setLockedDice([false, false, false, false, false]);
 
+    // Check if the game is over (all numbers selected)
+    if (updatedSelectedNumbers.every(num => num !== 0)) {
+      alert('Game over! All numbers are selected.');
+      return;
+    }
+    
+    // Reset throws for the next turn
+    setNbrOfThrowsLeft(3);
+    setDiceValues(Array(5).fill(null)); // Reset dice values for the next round
+  };
 
-  
-  const diceIcons = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
-  const NBR_OF_DICES = 5;
-  const BONUS_POINTS_LIMIT = 63;
+  // Function to toggle the dice lock state
+  const toggleDiceLock = (index) => {
+    const updatedLocks = [...lockedDice];
+    updatedLocks[index] = !updatedLocks[index]; 
+    setLockedDice(updatedLocks);
+  };
 
-  // Function to handle dice throwing
+  // Function to count occurrences of a number in the dice values
+  const countOccurrences = (num, arr) => {
+    return arr.filter((value) => value === num).length;
+  };
+
+  // Handle dice throwing
   const handleThrowDices = () => {
     if (nbrOfThrowsLeft > 0) {
       setNbrOfThrowsLeft(nbrOfThrowsLeft - 1);
 
-      // If this is the first throw, initialize all diceValues with random numbers
       const newDiceValues = diceValues.map((value, index) =>
         value === null || !lockedDice[index] ? Math.floor(Math.random() * 6) + 1 : value
       );
@@ -50,45 +66,29 @@ const countOccurrences = (num, arr) => {
     }
   };
 
-  // Toggle dice lock state
-  const toggleDiceLock = (index) => {
-    const updatedLocks = [...lockedDice];
-    updatedLocks[index] = !updatedLocks[index]; // Switch locks
-    setLockedDice(updatedLocks);
-  
-    if (updatedLocks[index]) {
-      // If the dice is locked, update the selected number
-      const diceValue = diceValues[index];
-      setSelectedNumbers((prevSelectedNumbers) => {
-        const updatedNumbers = [...prevSelectedNumbers];
-        updatedNumbers[diceValue - 1] = diceValue; // Set the selected number
-        return updatedNumbers;
-      });
-    }
-  };
+  const diceIcons = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
+  const BONUS_POINTS_LIMIT = 63;
 
   return (
     <View style={styles.container}>
-      {/* Dice icons */}
       <View style={styles.diceContainer}>
         {diceValues.every((value) => value === null) ? (
-          // Show a single dice icon before the first throw
           <FontAwesome5 name="dice" size={50} color="#0088ff" />
         ) : (
           <View style={styles.diceRow}>
             {diceValues.map((value, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => toggleDiceLock(index)} // Select/unselect the dice
+                onPress={() => toggleDiceLock(index)}
                 style={[
                   styles.diceTouchable,
-                  lockedDice[index] && styles.lockedDice, // Add different styling for locked dice
+                  lockedDice[index] && styles.lockedDice,
                 ]}
               >
                 <FontAwesome5
-                  name={diceIcons[value - 1]} // Map dice value to FontAwesome icon
+                  name={diceIcons[value - 1]} 
                   size={50}
-                  color={lockedDice[index] ? '#FF6347' : '#0088ff'} // Change color if locked
+                  color={lockedDice[index] ? '#FF6347' : '#0088ff'} 
                 />
               </TouchableOpacity>
             ))}
@@ -96,33 +96,34 @@ const countOccurrences = (num, arr) => {
         )}
       </View>
 
-      {/* Text for throwing dice */}
       <Text style={styles.throwsText}>Throws left: {nbrOfThrowsLeft}</Text>
       <Text style={styles.throwDicesText}>
         {nbrOfThrowsLeft < 3 ? 'Select and throw dices again' : 'Throw dices.'}
       </Text>
 
-      {/* Throw dices button */}
       <TouchableOpacity style={styles.button} onPress={handleThrowDices}>
         <Text style={styles.buttonText}>THROW DICES</Text>
       </TouchableOpacity>
 
-      {/* Total points */}
       <Text style={styles.totalText}>Total: {totalPoints}</Text>
 
-      {/* Bonus points message */}
       <Text style={styles.bonusText}>
         You are {BONUS_POINTS_LIMIT - totalPoints} points away from bonus
       </Text>
 
-      {/* Dice number buttons */}
+      {/* Number selection buttons */}
       <View style={styles.diceNumberContainer}>
         {[1, 2, 3, 4, 5, 6].map((num) => (
           <View key={num} style={styles.diceColumn}>
             <Text style={styles.diceValue}>{countOccurrences(num, diceValues) * num}</Text>
             <TouchableOpacity
-              style={styles.diceButton}
+              style={[
+                styles.diceButton,
+                selectedNumbers[num - 1] !== 0 && { backgroundColor: "#404040" }, // Tummentaa jos numero on jo valittu
+                nbrOfThrowsLeft > 0 && { opacity: 0.6 }, // Tummentaa napin, jos heittoja on vielä jäljellä
+              ]}
               onPress={() => handleSelectNumber(num)}
+              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0} // Disable, jos numero on jo valittu tai heittoja on jäljellä
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
@@ -131,7 +132,6 @@ const countOccurrences = (num, arr) => {
       </View>
 
 
-      {/* Player name */}
       <Text style={styles.playerNameText}>Player: {playerName}</Text>
     </View>
   );
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   totalText: {
-    fontSize: 18,
+    fontSize: 28,
     fontWeight: 'bold',
     marginTop: 20,
   },
