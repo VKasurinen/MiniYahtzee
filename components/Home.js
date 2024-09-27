@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AntDesign } from '@expo/vector-icons';
+import {
+  NBR_OF_DICES,
+  NBR_OF_THROWS,
+  MIN_SPOT,
+  MAX_SPOT,
+  BONUS_POINTS_LIMIT,
+  BONUS_POINTS
+} from '../constants/Game'
 
 const Home = ({ navigation }) => {
   const [playerName, setPlayerName] = useState('');
@@ -10,9 +18,9 @@ const Home = ({ navigation }) => {
   const handleSubmit = async () => {
     if (playerName.trim()) {
       try {
-        await AsyncStorage.setItem('playerName', playerName); 
-        Keyboard.dismiss(); 
-        setIsNameSubmitted(true); 
+        await AsyncStorage.setItem('playerName', playerName);
+        Keyboard.dismiss();
+        setIsNameSubmitted(true);
       } catch (e) {
         console.error(e);
       }
@@ -20,13 +28,6 @@ const Home = ({ navigation }) => {
       alert('Please enter your name');
     }
   };
-
-  const NBR_OF_DICES = 5;
-  const NBR_OF_THROWS = 3;
-  const MIN_SPOT = 1;
-  const MAX_SPOT = 6;
-  const BONUS_POINTS_LIMIT = 63;
-  const BONUS_POINTS = 50;
 
   const gameRules = `
     THE GAME: Upper section of the classic Yahtzee dice game.

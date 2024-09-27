@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useRoute } from '@react-navigation/native';
 
+
 const Gameboard = () => {
   const route = useRoute();
   const { playerName } = route.params || {};
@@ -12,29 +13,36 @@ const Gameboard = () => {
   const [lockedDice, setLockedDice] = useState([false, false, false, false, false]); 
   const [totalPoints, setTotalPoints] = useState(0);
   const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0)); // Track selected numbers (1 through 6)
+  const [selectedPoints, setSelectedPoints] = useState(Array(6).fill(0));
+
 
   const handleSelectNumber = (selectedNum) => {
     if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0) {
       return; // Exit if the number has been selected already or if there are throws left
     }
-
+  
     const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
     setTotalPoints(totalPoints + points);
-
+  
     const updatedSelectedNumbers = [...selectedNumbers];
     updatedSelectedNumbers[selectedNum - 1] = 1;
     setSelectedNumbers(updatedSelectedNumbers);
-
+  
+    const updatedSelectedPoints = [...selectedPoints];
+    updatedSelectedPoints[selectedNum - 1] = points;
+    setSelectedPoints(updatedSelectedPoints);
+  
     setLockedDice([false, false, false, false, false]);
-
+  
     if (updatedSelectedNumbers.every(num => num !== 0)) {
       alert('Game over! All numbers are selected.');
       return;
     }
-
+  
     setNbrOfThrowsLeft(3);
     setDiceValues(Array(5).fill(null));
   };
+  
 
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
@@ -106,7 +114,11 @@ const Gameboard = () => {
       <View style={styles.diceNumberContainer}>
         {[1, 2, 3, 4, 5, 6].map((num) => (
           <View key={num} style={styles.diceColumn}>
-            <Text style={styles.diceValue}>{countOccurrences(num, diceValues) * num}</Text>
+
+            <Text style={styles.diceValue}>
+              {selectedNumbers[num - 1] === 0 ? countOccurrences(num, diceValues) * num : selectedPoints[num - 1]}
+            </Text>
+
             <TouchableOpacity
               style={[
                 styles.diceButton,
@@ -133,7 +145,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   diceContainer: {
     marginBottom: 20,
