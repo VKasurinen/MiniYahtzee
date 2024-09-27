@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {SCOREBOARD_KEY} from '../constants/Game'
 
 
 const Gameboard = () => {
@@ -15,13 +17,44 @@ const Gameboard = () => {
   const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0)); // Track selected numbers (1 through 6)
   const [selectedPoints, setSelectedPoints] = useState(Array(6).fill(0));
 
+  const saveScore = async () => {
+    try {
+      const newScore = {
+        playerName: playerName || 'Anonymous',  // Use playerName if available, or 'Anonymous'
+        totalScore: totalPoints,
+        date: new Date().toISOString(),  // Store the current date as ISO string
+      };
 
-  const handleSelectNumber = (selectedNum) => {
+      await AsyncStorage.clear(); // Clear all data
+
+      const storedScores = await AsyncStorage.getItem(SCOREBOARD_KEY);
+      const scores = storedScores ? JSON.parse(storedScores) : [];
+  
+      // Add the new score to the array
+      scores.push(newScore);
+  
+      // Sort the scores in descending order (highest scores first)
+      scores.sort((a, b) => b.totalScore - a.totalScore);
+  
+      // Save the top 7 scores back to AsyncStorage
+      await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(scores.slice(0, 7)));
+      
+    } catch (error) {
+      console.error('Failed to save score', error);
+    }
+  };
+  
+
+  const handleSelectNumber = async (selectedNum) => {
     if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0) {
-      return; // Exit if the number has been selected already or if there are throws left
+      return; 
     }
   
     const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
+    console.log(`Selected Number: ${selectedNum}`);
+    console.log(`Dice Values: ${diceValues}`);
+    console.log(`Locked Dice: ${lockedDice}`);
+    console.log(`Points to Add: ${points}`);
     setTotalPoints(totalPoints + points);
   
     const updatedSelectedNumbers = [...selectedNumbers];
@@ -35,6 +68,8 @@ const Gameboard = () => {
     setLockedDice([false, false, false, false, false]);
   
     if (updatedSelectedNumbers.every(num => num !== 0)) {
+      // Game over, all numbers are selected
+      await saveScore();
       alert('Game over! All numbers are selected.');
       return;
     }
@@ -42,6 +77,7 @@ const Gameboard = () => {
     setNbrOfThrowsLeft(3);
     setDiceValues(Array(5).fill(null));
   };
+  
   
 
   const toggleDiceLock = (index) => {

@@ -11,6 +11,14 @@ import {
   BONUS_POINTS
 } from '../constants/Game'
 
+
+/*
+* Korjaa scoreboard bugi eli eri numerot siellä kuin gameboardissa
+*
+* Korjaa gameboard bugi eli kun olet valinnut nopat ja viimeisenä valitset 
+* numeroa mihin laitat nopat jos laitat väärään niin jostain syystä se antaa nollan
+*/
+
 const Home = ({ navigation }) => {
   const [playerName, setPlayerName] = useState('');
   const [isNameSubmitted, setIsNameSubmitted] = useState(false); 

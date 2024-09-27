@@ -1,21 +1,79 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SCOREBOARD_KEY } from '../constants/Game';
 
 const Scoreboard = () => {
+  const [scores, setScores] = useState([]);
+
+  useEffect(() => {
+    const loadScores = async () => {
+      try {
+        const storedScores = await AsyncStorage.getItem(SCOREBOARD_KEY);
+        if (storedScores) {
+          setScores(JSON.parse(storedScores));
+        }
+      } catch (e) {
+        console.error('Failed to load scores', e);
+      }
+    };
+
+    loadScores();
+  }, []);
+
+  const handleDeleteScores = async () => {
+    try {
+      await AsyncStorage.removeItem(SCOREBOARD_KEY); // Remove all scores from storage
+      setScores([]); // Clear the scores from the state
+    } catch (e) {
+      console.error('Failed to delete scores', e);
+    }
+  };
+
+  const renderScoreRow = ({ item, index }) => {
+    const ranking = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][index]; // Display ranking based on index
+    return (
+      <View style={styles.row}>
+        <Text style={styles.rank}>{ranking}</Text>
+        <Text style={styles.playerName}>{item.playerName}</Text>
+        <Text style={styles.date}>{new Date(item.date).toLocaleString()}</Text>
+        <Text style={styles.score}>{item.totalScore}</Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Centered Icon */}
       <AntDesign name="barschart" size={100} color="#0088ff" />
-      
+  
       {/* Top Seven Text */}
       <Text style={styles.topText}>Top Seven</Text>
-      
-      {/* Scoreboard is Empty Text */}
-      <Text style={styles.emptyText}>Scoreboard is empty</Text>
+  
+      {/* Score List */}
+      <View style={styles.listContainer}>
+        {scores.length > 0 ? (
+          <FlatList
+            data={scores.slice(0, 7)} // Limit to top 7 scores
+            renderItem={renderScoreRow}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        ) : (
+          <Text style={styles.emptyText}>Scoreboard is empty</Text>
+        )}
+      </View>
+  
+      {/* Red Button to Delete All Scores */}
+      {scores.length > 0 && (
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteScores}>
+          <Text style={styles.deleteButtonText}>Delete All Scores</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
-}
+  
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -23,6 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
+    padding: 20,
   },
   topText: {
     fontSize: 30,
@@ -32,9 +91,56 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    //color: '#888',
+    color: '#888',
     marginTop: 10,
   },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  rank: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '10%',
+  },
+  playerName: {
+    fontSize: 18,
+    width: '30%',
+  },
+  date: {
+    fontSize: 16,
+    color: '#888',
+    width: '30%',
+  },
+  score: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    width: '20%',
+    textAlign: 'right',
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  deleteButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  listContainer: {
+    flex: 0.8,
+    width: '100%',
+    alignItems: 'center',
+    //maxHeight: 300
+  },
 });
+
 
 export default Scoreboard;
