@@ -13,48 +13,39 @@ const Gameboard = () => {
   const [totalPoints, setTotalPoints] = useState(0);
   const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0)); // Track selected numbers (1 through 6)
 
-  // Function to process the selected number based on locked dice
   const handleSelectNumber = (selectedNum) => {
-    if (selectedNumbers[selectedNum - 1] !== 0) {
-      return; // Exit if the number has been selected already
+    if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0) {
+      return; // Exit if the number has been selected already or if there are throws left
     }
 
-    // Calculate the score based on locked dice values matching the selected number
     const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
-    setTotalPoints(totalPoints + points); // Update total points
+    setTotalPoints(totalPoints + points);
 
-    // Mark this number as selected
     const updatedSelectedNumbers = [...selectedNumbers];
-    updatedSelectedNumbers[selectedNum - 1] = 1; // Mark this number as used
+    updatedSelectedNumbers[selectedNum - 1] = 1;
     setSelectedNumbers(updatedSelectedNumbers);
 
-    // Reset locked dice after assigning points
     setLockedDice([false, false, false, false, false]);
 
-    // Check if the game is over (all numbers selected)
     if (updatedSelectedNumbers.every(num => num !== 0)) {
       alert('Game over! All numbers are selected.');
       return;
     }
-    
-    // Reset throws for the next turn
+
     setNbrOfThrowsLeft(3);
-    setDiceValues(Array(5).fill(null)); // Reset dice values for the next round
+    setDiceValues(Array(5).fill(null));
   };
 
-  // Function to toggle the dice lock state
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
     updatedLocks[index] = !updatedLocks[index]; 
     setLockedDice(updatedLocks);
   };
 
-  // Function to count occurrences of a number in the dice values
   const countOccurrences = (num, arr) => {
     return arr.filter((value) => value === num).length;
   };
 
-  // Handle dice throwing
   const handleThrowDices = () => {
     if (nbrOfThrowsLeft > 0) {
       setNbrOfThrowsLeft(nbrOfThrowsLeft - 1);
@@ -86,9 +77,9 @@ const Gameboard = () => {
                 ]}
               >
                 <FontAwesome5
-                  name={diceIcons[value - 1]} 
+                  name={diceIcons[value - 1]}
                   size={50}
-                  color={lockedDice[index] ? '#FF6347' : '#0088ff'} 
+                  color={lockedDice[index] ? '#FF6347' : '#0088ff'}
                 />
               </TouchableOpacity>
             ))}
@@ -98,10 +89,10 @@ const Gameboard = () => {
 
       <Text style={styles.throwsText}>Throws left: {nbrOfThrowsLeft}</Text>
       <Text style={styles.throwDicesText}>
-        {nbrOfThrowsLeft < 3 ? 'Select and throw dices again' : 'Throw dices.'}
+        {nbrOfThrowsLeft === 3 ? 'Throw 3 times before setting points' : nbrOfThrowsLeft > 0 ? 'Select and throw dices again' : 'You can now set points'}
       </Text>
 
-      <TouchableOpacity style={styles.button} onPress={handleThrowDices}>
+      <TouchableOpacity style={styles.button} onPress={handleThrowDices} disabled={nbrOfThrowsLeft === 0}>
         <Text style={styles.buttonText}>THROW DICES</Text>
       </TouchableOpacity>
 
@@ -130,7 +121,6 @@ const Gameboard = () => {
           </View>
         ))}
       </View>
-
 
       <Text style={styles.playerNameText}>Player: {playerName}</Text>
     </View>
