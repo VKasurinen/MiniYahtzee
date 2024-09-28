@@ -1,88 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {SCOREBOARD_KEY} from '../constants/Game'
-
+import { SCOREBOARD_KEY, BONUS_POINTS_LIMIT } from '../constants/Game';
 
 const Gameboard = () => {
   const route = useRoute();
   const { playerName } = route.params || {};
-  
+
   const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(3);
-  const [diceValues, setDiceValues] = useState(Array(5).fill(null)); 
-  const [lockedDice, setLockedDice] = useState([false, false, false, false, false]); 
+  const [diceValues, setDiceValues] = useState(Array(5).fill(null));
+  const [lockedDice, setLockedDice] = useState([false, false, false, false, false]);
   const [totalPoints, setTotalPoints] = useState(0);
-  const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0)); // Track selected numbers (1 through 6)
+  const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0));
   const [selectedPoints, setSelectedPoints] = useState(Array(6).fill(0));
+
+  // Save the score once all numbers are selected and totalPoints is updated
+  useEffect(() => {
+    if (selectedNumbers.every(num => num !== 0)) {
+      saveScore();
+      alert('Game over! All numbers are selected.');
+    }
+  }, [totalPoints, selectedNumbers]);
 
   const saveScore = async () => {
     try {
       const newScore = {
-        playerName: playerName || 'Anonymous',  // Use playerName if available, or 'Anonymous'
+        playerName: playerName || 'Anonymous',
         totalScore: totalPoints,
-        date: new Date().toISOString(),  // Store the current date as ISO string
+        date: new Date().toISOString(),
       };
-
-      await AsyncStorage.clear(); // Clear all data
 
       const storedScores = await AsyncStorage.getItem(SCOREBOARD_KEY);
       const scores = storedScores ? JSON.parse(storedScores) : [];
-  
+
       // Add the new score to the array
       scores.push(newScore);
-  
+
       // Sort the scores in descending order (highest scores first)
       scores.sort((a, b) => b.totalScore - a.totalScore);
-  
+
       // Save the top 7 scores back to AsyncStorage
       await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(scores.slice(0, 7)));
-      
     } catch (error) {
       console.error('Failed to save score', error);
     }
   };
-  
 
-  const handleSelectNumber = async (selectedNum) => {
+  const handleSelectNumber = (selectedNum) => {
     if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0) {
-      return; 
+      return;
     }
-  
+
     const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
-    console.log(`Selected Number: ${selectedNum}`);
-    console.log(`Dice Values: ${diceValues}`);
-    console.log(`Locked Dice: ${lockedDice}`);
-    console.log(`Points to Add: ${points}`);
-    setTotalPoints(totalPoints + points);
-  
+
+    setTotalPoints(prevTotalPoints => prevTotalPoints + points);
+
     const updatedSelectedNumbers = [...selectedNumbers];
     updatedSelectedNumbers[selectedNum - 1] = 1;
     setSelectedNumbers(updatedSelectedNumbers);
-  
+
     const updatedSelectedPoints = [...selectedPoints];
     updatedSelectedPoints[selectedNum - 1] = points;
     setSelectedPoints(updatedSelectedPoints);
-  
+
     setLockedDice([false, false, false, false, false]);
-  
-    if (updatedSelectedNumbers.every(num => num !== 0)) {
-      // Game over, all numbers are selected
-      await saveScore();
-      alert('Game over! All numbers are selected.');
-      return;
-    }
-  
     setNbrOfThrowsLeft(3);
     setDiceValues(Array(5).fill(null));
   };
-  
-  
 
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
-    updatedLocks[index] = !updatedLocks[index]; 
+    updatedLocks[index] = !updatedLocks[index];
     setLockedDice(updatedLocks);
   };
 
@@ -102,7 +92,6 @@ const Gameboard = () => {
   };
 
   const diceIcons = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
-  const BONUS_POINTS_LIMIT = 63;
 
   return (
     <View style={styles.container}>
@@ -132,37 +121,30 @@ const Gameboard = () => {
       </View>
 
       <Text style={styles.throwsText}>Throws left: {nbrOfThrowsLeft}</Text>
-      <Text style={styles.throwDicesText}>
-        {nbrOfThrowsLeft === 3 ? 'Throw 3 times before setting points' : nbrOfThrowsLeft > 0 ? 'Select and throw dices again' : 'You can now set points'}
-      </Text>
 
       <TouchableOpacity style={styles.button} onPress={handleThrowDices} disabled={nbrOfThrowsLeft === 0}>
         <Text style={styles.buttonText}>THROW DICES</Text>
       </TouchableOpacity>
 
       <Text style={styles.totalText}>Total: {totalPoints}</Text>
-
       <Text style={styles.bonusText}>
         You are {BONUS_POINTS_LIMIT - totalPoints} points away from bonus
       </Text>
 
-      {/* Number selection buttons */}
       <View style={styles.diceNumberContainer}>
         {[1, 2, 3, 4, 5, 6].map((num) => (
           <View key={num} style={styles.diceColumn}>
-
             <Text style={styles.diceValue}>
               {selectedNumbers[num - 1] === 0 ? countOccurrences(num, diceValues) * num : selectedPoints[num - 1]}
             </Text>
-
             <TouchableOpacity
               style={[
                 styles.diceButton,
-                selectedNumbers[num - 1] !== 0 && { backgroundColor: "#404040" }, // Darken if the number is already selected
-                nbrOfThrowsLeft > 0 && { opacity: 0.6 }, // Darken the button if there are still rolls left
+                selectedNumbers[num - 1] !== 0 && { backgroundColor: "#404040" },
+                nbrOfThrowsLeft > 0 && { opacity: 0.6 },
               ]}
               onPress={() => handleSelectNumber(num)}
-              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0} // Disable if the number has already been selected or there are some rolls left
+              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0}
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>

@@ -31,13 +31,28 @@ const Scoreboard = () => {
     }
   };
 
+  // Function to format date as "28.9.2024 15.22"
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // getMonth() is zero-based
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // ensures minutes are always two digits
+
+    // Return the formatted string
+    return `${day}.${month}.${year} ${hours}.${minutes}`;
+  };
+
   const renderScoreRow = ({ item, index }) => {
     const ranking = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][index]; // Display ranking based on index
+
     return (
       <View style={styles.row}>
         <Text style={styles.rank}>{ranking}</Text>
         <Text style={styles.playerName}>{item.playerName}</Text>
-        <Text style={styles.date}>{new Date(item.date).toLocaleString()}</Text>
+        <Text style={styles.date}>{formatDate(item.date)}</Text>
         <Text style={styles.score}>{item.totalScore}</Text>
       </View>
     );
@@ -72,7 +87,6 @@ const Scoreboard = () => {
       )}
     </View>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -138,9 +152,7 @@ const styles = StyleSheet.create({
     flex: 0.8,
     width: '100%',
     alignItems: 'center',
-    //maxHeight: 300
   },
 });
-
 
 export default Scoreboard;
