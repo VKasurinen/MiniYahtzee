@@ -49,26 +49,27 @@ const Gameboard = () => {
   };
 
   const handleSelectNumber = (selectedNum) => {
-    if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0) {
-      return;
+    if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice)) {
+      return; // Prevents selecting a number if throws are left, if the number is already selected, or if no dice are locked.
     }
-
+  
     const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
-
+  
     setTotalPoints(prevTotalPoints => prevTotalPoints + points);
-
+  
     const updatedSelectedNumbers = [...selectedNumbers];
     updatedSelectedNumbers[selectedNum - 1] = 1;
     setSelectedNumbers(updatedSelectedNumbers);
-
+  
     const updatedSelectedPoints = [...selectedPoints];
     updatedSelectedPoints[selectedNum - 1] = points;
     setSelectedPoints(updatedSelectedPoints);
-
-    setLockedDice([false, false, false, false, false]);
-    setNbrOfThrowsLeft(3);
-    setDiceValues(Array(5).fill(null));
+  
+    setLockedDice([false, false, false, false, false]); // Reset the dice locks after selecting a number
+    setNbrOfThrowsLeft(3); // Reset the number of throws
+    setDiceValues(Array(5).fill(null)); // Reset dice values for the next round
   };
+  
 
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
@@ -141,10 +142,10 @@ const Gameboard = () => {
               style={[
                 styles.diceButton,
                 selectedNumbers[num - 1] !== 0 && { backgroundColor: "#404040" },
-                nbrOfThrowsLeft > 0 && { opacity: 0.6 },
+                (nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice)) && { opacity: 0.6 }, // Disable if throws are left or no dice are locked
               ]}
               onPress={() => handleSelectNumber(num)}
-              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0}
+              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice)} // Also disable if no dice are locked
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
