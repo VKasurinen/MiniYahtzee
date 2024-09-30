@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     padding: 20,
+    backgroundColor: "#f5f5f5",
   },
   header: {
     fontSize: 24,
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#0088ff",
     padding: 10,
-    marginBottom: 40,
+    marginBottom: 80,
     borderRadius: 15,
     alignItems: "center",
     marginVertical: 10,
