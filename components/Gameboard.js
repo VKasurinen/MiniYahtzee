@@ -58,36 +58,39 @@ const Gameboard = () => {
   };
 
   const handleSelectNumber = (selectedNum) => {
-    // Jos kaikki heitot on käytetty, voit valita minkä tahansa luvun
+    // If all rolls are used, you can choose any number
     if (nbrOfThrowsLeft === 0) {
-      // Salli nollan valinta
-      const points = selectedNum === 0 ? 0 : countOccurrences(selectedNum, diceValues) * selectedNum;
-  
+      // Allow selection of zero
+      const points =
+        selectedNum === 0
+          ? 0
+          : countOccurrences(selectedNum, diceValues) * selectedNum;
+
       const updatedSelectedNumbers = [...selectedNumbers];
-      updatedSelectedNumbers[selectedNum - 1] = 1; // Merkitse numero valituksi
+      updatedSelectedNumbers[selectedNum - 1] = 1; // Mark the number as selected
       setSelectedNumbers(updatedSelectedNumbers);
-  
+
       const updatedSelectedPoints = [...selectedPoints];
-      updatedSelectedPoints[selectedNum - 1] = points; // Tallenna valitut pisteet
+      updatedSelectedPoints[selectedNum - 1] = points; // Save the selected points
       setSelectedPoints(updatedSelectedPoints);
-  
+
       setTotalPoints((prevTotalPoints) => prevTotalPoints + points);
-  
-      setLockedDice([false, false, false, false, false]); // Nollaa noppien lukot
-      setNbrOfThrowsLeft(3); // Nollaa heittojen määrä
-      setDiceValues(Array(5).fill(null)); // Nollaa noppien arvot seuraavaa kierrosta varten
+
+      setLockedDice([false, false, false, false, false]); // Reset dice locks
+      setNbrOfThrowsLeft(3);
+      setDiceValues(Array(5).fill(null)); // Reset the dice values ​​for the next round
       return;
     }
-  
+
     // Find the highest locked dice value
     const lockedDiceValues = diceValues.filter((_, index) => lockedDice[index]);
     const highestLockedValue = Math.max(...lockedDiceValues);
-  
-    // Estä valinta, jos:
-    // 1. Se on jo valittu.
-    // 2. Heittoja on vielä jäljellä.
-    // 3. Ei ole lukittuja noppia.
-    // 4. Valittu numero ei ole sama kuin korkein lukittu nopan arvo.
+
+    // Prevent selection if:
+    // 1. It's already selected.
+    // 2. There are still throws left.
+    // 3. There are no locked dice.
+    // 4. The selected number is not the same as the highest locked dice value.
     if (
       selectedNumbers[selectedNum - 1] !== 0 ||
       lockedDice.every((dice) => !dice) ||
@@ -95,28 +98,27 @@ const Gameboard = () => {
     ) {
       return;
     }
-  
+
     const points =
       countOccurrences(
         selectedNum,
         diceValues.filter((_, index) => lockedDice[index])
       ) * selectedNum;
-  
+
     setTotalPoints((prevTotalPoints) => prevTotalPoints + points);
-  
+
     const updatedSelectedNumbers = [...selectedNumbers];
     updatedSelectedNumbers[selectedNum - 1] = 1;
     setSelectedNumbers(updatedSelectedNumbers);
-  
+
     const updatedSelectedPoints = [...selectedPoints];
     updatedSelectedPoints[selectedNum - 1] = points;
     setSelectedPoints(updatedSelectedPoints);
-  
-    setLockedDice([false, false, false, false, false]); // Nollaa noppien lukot
-    setNbrOfThrowsLeft(3); // Nollaa heittojen määrä
-    setDiceValues(Array(5).fill(null)); // Nollaa noppien arvot seuraavaa kierrosta varten
+
+    setLockedDice([false, false, false, false, false]); // Reset the number of throws
+    setNbrOfThrowsLeft(3); // Reset the number of throws
+    setDiceValues(Array(5).fill(null)); // Reset the dice values ​​for the next round
   };
-  
 
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
@@ -228,9 +230,13 @@ const Gameboard = () => {
               disabled={
                 selectedNumbers[num - 1] !== 0 ||
                 (nbrOfThrowsLeft > 0 && lockedDice.every((dice) => !dice)) ||
-                (nbrOfThrowsLeft === 0 && lockedDice.some((dice) => dice) && num !== Math.max(...diceValues.filter((_, index) => lockedDice[index])))
+                (nbrOfThrowsLeft === 0 &&
+                  lockedDice.some((dice) => dice) &&
+                  num !==
+                    Math.max(
+                      ...diceValues.filter((_, index) => lockedDice[index])
+                    ))
               }
-              
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
