@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SCOREBOARD_KEY, BONUS_POINTS_LIMIT } from '../constants/Game';
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { useRoute } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SCOREBOARD_KEY, BONUS_POINTS_LIMIT } from "../constants/Game";
 
 const Gameboard = () => {
   const route = useRoute();
@@ -11,23 +11,29 @@ const Gameboard = () => {
 
   const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(3);
   const [diceValues, setDiceValues] = useState(Array(5).fill(null));
-  const [lockedDice, setLockedDice] = useState([false, false, false, false, false]);
+  const [lockedDice, setLockedDice] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
   const [totalPoints, setTotalPoints] = useState(0);
   const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0));
   const [selectedPoints, setSelectedPoints] = useState(Array(6).fill(0));
 
   // Save the score once all numbers are selected and totalPoints is updated
   useEffect(() => {
-    if (selectedNumbers.every(num => num !== 0)) {
+    if (selectedNumbers.every((num) => num !== 0)) {
       saveScore();
-      alert('Game over! All numbers are selected.');
+      alert("Game over! All numbers are selected.");
     }
   }, [totalPoints, selectedNumbers]);
 
   const saveScore = async () => {
     try {
       const newScore = {
-        playerName: playerName || 'Anonymous',
+        playerName: playerName || "Anonymous",
         totalScore: totalPoints,
         date: new Date().toISOString(),
       };
@@ -42,9 +48,12 @@ const Gameboard = () => {
       scores.sort((a, b) => b.totalScore - a.totalScore);
 
       // Save the top 7 scores back to AsyncStorage
-      await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(scores.slice(0, 7)));
+      await AsyncStorage.setItem(
+        SCOREBOARD_KEY,
+        JSON.stringify(scores.slice(0, 7))
+      );
     } catch (error) {
-      console.error('Failed to save score', error);
+      console.error("Failed to save score", error);
     }
   };
 
@@ -58,13 +67,22 @@ const Gameboard = () => {
     // 2. Throws are still left.
     // 3. No dice are locked.
     // 4. The selected number is not the same as the highest locked dice value.
-    if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice) || selectedNum !== highestLockedValue) {
-        return;
+    if (
+      selectedNumbers[selectedNum - 1] !== 0 ||
+      nbrOfThrowsLeft > 0 ||
+      lockedDice.every((dice) => !dice) ||
+      selectedNum !== highestLockedValue
+    ) {
+      return;
     }
 
-    const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
+    const points =
+      countOccurrences(
+        selectedNum,
+        diceValues.filter((_, index) => lockedDice[index])
+      ) * selectedNum;
 
-    setTotalPoints(prevTotalPoints => prevTotalPoints + points);
+    setTotalPoints((prevTotalPoints) => prevTotalPoints + points);
 
     const updatedSelectedNumbers = [...selectedNumbers];
     updatedSelectedNumbers[selectedNum - 1] = 1;
@@ -78,8 +96,6 @@ const Gameboard = () => {
     setNbrOfThrowsLeft(3); // Reset the number of throws
     setDiceValues(Array(5).fill(null)); // Reset dice values for the next round
   };
-
-  
 
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
@@ -96,13 +112,22 @@ const Gameboard = () => {
       setNbrOfThrowsLeft(nbrOfThrowsLeft - 1);
 
       const newDiceValues = diceValues.map((value, index) =>
-        value === null || !lockedDice[index] ? Math.floor(Math.random() * 6) + 1 : value
+        value === null || !lockedDice[index]
+          ? Math.floor(Math.random() * 6) + 1
+          : value
       );
       setDiceValues(newDiceValues);
     }
   };
 
-  const diceIcons = ['dice-one', 'dice-two', 'dice-three', 'dice-four', 'dice-five', 'dice-six'];
+  const diceIcons = [
+    "dice-one",
+    "dice-two",
+    "dice-three",
+    "dice-four",
+    "dice-five",
+    "dice-six",
+  ];
 
   return (
     <View style={styles.container}>
@@ -123,7 +148,7 @@ const Gameboard = () => {
                 <FontAwesome5
                   name={diceIcons[value - 1]}
                   size={50}
-                  color={lockedDice[index] ? '#FF6347' : '#0088ff'}
+                  color={lockedDice[index] ? "#FF6347" : "#0088ff"}
                 />
               </TouchableOpacity>
             ))}
@@ -134,10 +159,18 @@ const Gameboard = () => {
       <Text style={styles.throwsText}>Throws left: {nbrOfThrowsLeft}</Text>
 
       <Text style={styles.throwDicesText}>
-        {nbrOfThrowsLeft === 3 ? 'Throw 3 times before setting points' : nbrOfThrowsLeft > 0 ? 'Select and throw dices again' : 'You can now set points'}
+        {nbrOfThrowsLeft === 3
+          ? "Throw 3 times before setting points"
+          : nbrOfThrowsLeft > 0
+          ? "Select and throw dices again"
+          : "You can now set points"}
       </Text>
 
-      <TouchableOpacity style={styles.button} onPress={handleThrowDices} disabled={nbrOfThrowsLeft === 0}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleThrowDices}
+        disabled={nbrOfThrowsLeft === 0}
+      >
         <Text style={styles.buttonText}>THROW DICES</Text>
       </TouchableOpacity>
 
@@ -150,24 +183,39 @@ const Gameboard = () => {
         {[1, 2, 3, 4, 5, 6].map((num) => (
           <View key={num} style={styles.diceColumn}>
             <Text style={styles.diceValue}>
-              {selectedNumbers[num - 1] === 0 ? countOccurrences(num, diceValues) * num : selectedPoints[num - 1]}
+              {selectedNumbers[num - 1] === 0
+                ? countOccurrences(num, diceValues) * num
+                : selectedPoints[num - 1]}
             </Text>
             <TouchableOpacity
-            //rgba(255, 133, 133, 0.6)
+              //rgba(255, 133, 133, 0.6)
               style={[
                 styles.diceButton,
-                selectedNumbers[num - 1] !== 0 
+                selectedNumbers[num - 1] !== 0
                   ? { backgroundColor: "#4d4d4d" }
-                  : (nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice) || (lockedDice.some(dice => dice) && num !== Math.max(...diceValues.filter((_, index) => lockedDice[index]))))
-                    ? { backgroundColor: 'rgba(255, 133, 133, 0.6)' }
-                    : { backgroundColor: '#0088ff' },
+                  : nbrOfThrowsLeft > 0 ||
+                    lockedDice.every((dice) => !dice) ||
+                    (lockedDice.some((dice) => dice) &&
+                      num !==
+                        Math.max(
+                          ...diceValues.filter((_, index) => lockedDice[index])
+                        ))
+                  ? { backgroundColor: "rgba(255, 133, 133, 0.6)" }
+                  : { backgroundColor: "#0088ff" },
               ]}
               onPress={() => handleSelectNumber(num)}
-              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice) || num !== Math.max(...diceValues.filter((_, index) => lockedDice[index]))}
+              disabled={
+                selectedNumbers[num - 1] !== 0 ||
+                nbrOfThrowsLeft > 0 ||
+                lockedDice.every((dice) => !dice) ||
+                num !==
+                  Math.max(
+                    ...diceValues.filter((_, index) => lockedDice[index])
+                  )
+              }
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
-
           </View>
         ))}
       </View>
@@ -180,19 +228,19 @@ const Gameboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   diceContainer: {
     marginBottom: 20,
   },
   diceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly', 
-    alignItems: 'center',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    width: "100%",
   },
   diceTouchable: {
     padding: 5,
@@ -202,7 +250,7 @@ const styles = StyleSheet.create({
   },
   throwsText: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 10,
   },
   throwDicesText: {
@@ -210,64 +258,64 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: '#0088ff',
+    backgroundColor: "#0088ff",
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 10,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   totalText: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 20,
   },
   bonusText: {
     fontSize: 18,
     fontWeight: "600",
     marginTop: 10,
-    color: '#FF6347',
+    color: "#FF6347",
   },
   diceNumberContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    width: "100%",
     marginTop: 30,
     paddingHorizontal: 10,
   },
   diceColumn: {
-    alignItems: 'center',
-    width: '16%',
+    alignItems: "center",
+    width: "16%",
   },
   diceValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   diceButton: {
     width: 50,
     height: 50,
-    backgroundColor: '#0088ff',
+    backgroundColor: "#0088ff",
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   diceButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   playerNameText: {
     fontSize: 19,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 20,
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

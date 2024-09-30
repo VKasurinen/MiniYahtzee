@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SCOREBOARD_KEY } from '../constants/Game';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SCOREBOARD_KEY } from "../constants/Game";
 
 const Scoreboard = () => {
   const [scores, setScores] = useState([]);
@@ -15,7 +21,7 @@ const Scoreboard = () => {
           setScores(JSON.parse(storedScores));
         }
       } catch (e) {
-        console.error('Failed to load scores', e);
+        console.error("Failed to load scores", e);
       }
     };
 
@@ -27,7 +33,7 @@ const Scoreboard = () => {
       await AsyncStorage.removeItem(SCOREBOARD_KEY); // Remove all scores from storage
       setScores([]); // Clear the scores from the state
     } catch (e) {
-      console.error('Failed to delete scores', e);
+      console.error("Failed to delete scores", e);
     }
   };
 
@@ -39,7 +45,7 @@ const Scoreboard = () => {
     const month = date.getMonth() + 1; // getMonth() is zero-based
     const year = date.getFullYear();
     const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0'); // ensures minutes are always two digits
+    const minutes = date.getMinutes().toString().padStart(2, "0"); // ensures minutes are always two digits
 
     // Return the formatted string
     return `${day}.${month}.${year} ${hours}.${minutes}`;
@@ -62,10 +68,10 @@ const Scoreboard = () => {
     <View style={styles.container}>
       {/* Centered Icon */}
       <AntDesign name="barschart" size={100} color="#0088ff" />
-  
+
       {/* Top Seven Text */}
       <Text style={styles.topText}>Top Seven</Text>
-  
+
       {/* Score List */}
       <View style={styles.listContainer}>
         {scores.length > 0 ? (
@@ -78,10 +84,13 @@ const Scoreboard = () => {
           <Text style={styles.emptyText}>Scoreboard is empty</Text>
         )}
       </View>
-  
+
       {/* Red Button to Delete All Scores */}
       {scores.length > 0 && (
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteScores}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={handleDeleteScores}
+        >
           <Text style={styles.deleteButtonText}>Delete All Scores</Text>
         </TouchableOpacity>
       )}
@@ -92,66 +101,66 @@ const Scoreboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
     padding: 20,
   },
   topText: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: '#0088ff',
+    fontWeight: "bold",
+    color: "#0088ff",
     marginTop: 20,
   },
   emptyText: {
     fontSize: 18,
-    color: '#888',
+    color: "#888",
     marginTop: 10,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   rank: {
     fontSize: 18,
-    fontWeight: 'bold',
-    width: '10%',
+    fontWeight: "bold",
+    width: "10%",
   },
   playerName: {
     fontSize: 18,
-    width: '30%',
+    width: "30%",
   },
   date: {
     fontSize: 16,
-    color: '#888',
-    width: '30%',
+    color: "#888",
+    width: "30%",
   },
   score: {
     fontSize: 18,
-    fontWeight: 'bold',
-    width: '20%',
-    textAlign: 'right',
+    fontWeight: "bold",
+    width: "20%",
+    textAlign: "right",
   },
   deleteButton: {
-    backgroundColor: 'red',
+    backgroundColor: "red",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
     marginTop: 20,
   },
   deleteButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   listContainer: {
     flex: 0.8,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
 });
 

@@ -7,7 +7,6 @@ export const BONUS_POINTS = 50;
 export const MAX_NBR_OF_SCOREBOARD_ROWS = 7;
 export const SCOREBOARD_KEY = "@scoreboard";
 
-
 export const GAMERULES = `
 THE GAME: Upper section of the classic Yahtzee dice game.
 You have ${NBR_OF_DICES} dices and for every dice, you have ${NBR_OF_THROWS} throws.
