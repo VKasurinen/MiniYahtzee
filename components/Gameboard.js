@@ -58,44 +58,65 @@ const Gameboard = () => {
   };
 
   const handleSelectNumber = (selectedNum) => {
+    // Jos kaikki heitot on käytetty, voit valita minkä tahansa luvun
+    if (nbrOfThrowsLeft === 0) {
+      // Salli nollan valinta
+      const points = selectedNum === 0 ? 0 : countOccurrences(selectedNum, diceValues) * selectedNum;
+  
+      const updatedSelectedNumbers = [...selectedNumbers];
+      updatedSelectedNumbers[selectedNum - 1] = 1; // Merkitse numero valituksi
+      setSelectedNumbers(updatedSelectedNumbers);
+  
+      const updatedSelectedPoints = [...selectedPoints];
+      updatedSelectedPoints[selectedNum - 1] = points; // Tallenna valitut pisteet
+      setSelectedPoints(updatedSelectedPoints);
+  
+      setTotalPoints((prevTotalPoints) => prevTotalPoints + points);
+  
+      setLockedDice([false, false, false, false, false]); // Nollaa noppien lukot
+      setNbrOfThrowsLeft(3); // Nollaa heittojen määrä
+      setDiceValues(Array(5).fill(null)); // Nollaa noppien arvot seuraavaa kierrosta varten
+      return;
+    }
+  
     // Find the highest locked dice value
     const lockedDiceValues = diceValues.filter((_, index) => lockedDice[index]);
     const highestLockedValue = Math.max(...lockedDiceValues);
-
-    // Prevent selecting a number if:
-    // 1. It is already selected.
-    // 2. Throws are still left.
-    // 3. No dice are locked.
-    // 4. The selected number is not the same as the highest locked dice value.
+  
+    // Estä valinta, jos:
+    // 1. Se on jo valittu.
+    // 2. Heittoja on vielä jäljellä.
+    // 3. Ei ole lukittuja noppia.
+    // 4. Valittu numero ei ole sama kuin korkein lukittu nopan arvo.
     if (
       selectedNumbers[selectedNum - 1] !== 0 ||
-      nbrOfThrowsLeft > 0 ||
       lockedDice.every((dice) => !dice) ||
       selectedNum !== highestLockedValue
     ) {
       return;
     }
-
+  
     const points =
       countOccurrences(
         selectedNum,
         diceValues.filter((_, index) => lockedDice[index])
       ) * selectedNum;
-
+  
     setTotalPoints((prevTotalPoints) => prevTotalPoints + points);
-
+  
     const updatedSelectedNumbers = [...selectedNumbers];
     updatedSelectedNumbers[selectedNum - 1] = 1;
     setSelectedNumbers(updatedSelectedNumbers);
-
+  
     const updatedSelectedPoints = [...selectedPoints];
     updatedSelectedPoints[selectedNum - 1] = points;
     setSelectedPoints(updatedSelectedPoints);
-
-    setLockedDice([false, false, false, false, false]); // Reset the dice locks after selecting a number
-    setNbrOfThrowsLeft(3); // Reset the number of throws
-    setDiceValues(Array(5).fill(null)); // Reset dice values for the next round
+  
+    setLockedDice([false, false, false, false, false]); // Nollaa noppien lukot
+    setNbrOfThrowsLeft(3); // Nollaa heittojen määrä
+    setDiceValues(Array(5).fill(null)); // Nollaa noppien arvot seuraavaa kierrosta varten
   };
+  
 
   const toggleDiceLock = (index) => {
     const updatedLocks = [...lockedDice];
@@ -206,13 +227,10 @@ const Gameboard = () => {
               onPress={() => handleSelectNumber(num)}
               disabled={
                 selectedNumbers[num - 1] !== 0 ||
-                nbrOfThrowsLeft > 0 ||
-                lockedDice.every((dice) => !dice) ||
-                num !==
-                  Math.max(
-                    ...diceValues.filter((_, index) => lockedDice[index])
-                  )
+                (nbrOfThrowsLeft > 0 && lockedDice.every((dice) => !dice)) ||
+                (nbrOfThrowsLeft === 0 && lockedDice.some((dice) => dice) && num !== Math.max(...diceValues.filter((_, index) => lockedDice[index])))
               }
+              
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
