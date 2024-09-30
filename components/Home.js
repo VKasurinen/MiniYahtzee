@@ -8,7 +8,8 @@ import {
   MIN_SPOT,
   MAX_SPOT,
   BONUS_POINTS_LIMIT,
-  BONUS_POINTS
+  BONUS_POINTS,
+  GAMERULES
 } from '../constants/Game'
 
 
@@ -30,19 +31,6 @@ const Home = ({ navigation }) => {
     }
   };
 
-  const gameRules = `
-    THE GAME: Upper section of the classic Yahtzee dice game.
-    You have ${NBR_OF_DICES} dices and for every dice, you have ${NBR_OF_THROWS} throws.
-    After each throw, you can keep dices to get the same dice spot counts as many as possible.
-    In the end, you must select your points from ${MIN_SPOT} to ${MAX_SPOT}.
-    Game ends when all points have been selected. The order for selecting those is free.
-
-    POINTS: After each turn, the game calculates the sum for the dices you selected.
-    Only the dices with the same spot count are calculated.
-    Inside the game, you cannot select the same points from ${MIN_SPOT} to ${MAX_SPOT} again.
-
-    GOAL: To get as many points as possible. ${BONUS_POINTS_LIMIT} points is the limit of getting a bonus which gives you ${BONUS_POINTS} points more.
-  `;
 
   return (
     <View style={styles.container}>
@@ -69,7 +57,7 @@ const Home = ({ navigation }) => {
       {isNameSubmitted && (
         <>
           <Text style={styles.rulesTitle}>Rules of the Game</Text>
-          <Text style={styles.rulesText}>{gameRules}</Text>
+          <Text style={styles.rulesText}>{GAMERULES}</Text>
           <Text style={styles.NameText}>Good Luck, {playerName}!</Text>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Gameboard', { playerName })}>
             <Text style={styles.buttonText}>Play</Text>
