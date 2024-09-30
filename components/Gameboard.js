@@ -49,26 +49,36 @@ const Gameboard = () => {
   };
 
   const handleSelectNumber = (selectedNum) => {
-    if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice)) {
-      return; // Prevents selecting a number if throws are left, if the number is already selected, or if no dice are locked.
+    // Find the highest locked dice value
+    const lockedDiceValues = diceValues.filter((_, index) => lockedDice[index]);
+    const highestLockedValue = Math.max(...lockedDiceValues);
+
+    // Prevent selecting a number if:
+    // 1. It is already selected.
+    // 2. Throws are still left.
+    // 3. No dice are locked.
+    // 4. The selected number is not the same as the highest locked dice value.
+    if (selectedNumbers[selectedNum - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice) || selectedNum !== highestLockedValue) {
+        return;
     }
-  
+
     const points = countOccurrences(selectedNum, diceValues.filter((_, index) => lockedDice[index])) * selectedNum;
-  
+
     setTotalPoints(prevTotalPoints => prevTotalPoints + points);
-  
+
     const updatedSelectedNumbers = [...selectedNumbers];
     updatedSelectedNumbers[selectedNum - 1] = 1;
     setSelectedNumbers(updatedSelectedNumbers);
-  
+
     const updatedSelectedPoints = [...selectedPoints];
     updatedSelectedPoints[selectedNum - 1] = points;
     setSelectedPoints(updatedSelectedPoints);
-  
+
     setLockedDice([false, false, false, false, false]); // Reset the dice locks after selecting a number
     setNbrOfThrowsLeft(3); // Reset the number of throws
     setDiceValues(Array(5).fill(null)); // Reset dice values for the next round
   };
+
   
 
   const toggleDiceLock = (index) => {
@@ -123,6 +133,10 @@ const Gameboard = () => {
 
       <Text style={styles.throwsText}>Throws left: {nbrOfThrowsLeft}</Text>
 
+      <Text style={styles.throwDicesText}>
+        {nbrOfThrowsLeft === 3 ? 'Throw 3 times before setting points' : nbrOfThrowsLeft > 0 ? 'Select and throw dices again' : 'You can now set points'}
+      </Text>
+
       <TouchableOpacity style={styles.button} onPress={handleThrowDices} disabled={nbrOfThrowsLeft === 0}>
         <Text style={styles.buttonText}>THROW DICES</Text>
       </TouchableOpacity>
@@ -139,16 +153,21 @@ const Gameboard = () => {
               {selectedNumbers[num - 1] === 0 ? countOccurrences(num, diceValues) * num : selectedPoints[num - 1]}
             </Text>
             <TouchableOpacity
+            //rgba(255, 133, 133, 0.6)
               style={[
                 styles.diceButton,
-                selectedNumbers[num - 1] !== 0 && { backgroundColor: "#404040" },
-                (nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice)) && { opacity: 0.6 }, // Disable if throws are left or no dice are locked
+                selectedNumbers[num - 1] !== 0 
+                  ? { backgroundColor: "#4d4d4d" }
+                  : (nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice) || (lockedDice.some(dice => dice) && num !== Math.max(...diceValues.filter((_, index) => lockedDice[index]))))
+                    ? { backgroundColor: 'rgba(255, 133, 133, 0.6)' }
+                    : { backgroundColor: '#0088ff' },
               ]}
               onPress={() => handleSelectNumber(num)}
-              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice)} // Also disable if no dice are locked
+              disabled={selectedNumbers[num - 1] !== 0 || nbrOfThrowsLeft > 0 || lockedDice.every(dice => !dice) || num !== Math.max(...diceValues.filter((_, index) => lockedDice[index]))}
             >
               <Text style={styles.diceButtonText}>{num}</Text>
             </TouchableOpacity>
+
           </View>
         ))}
       </View>
