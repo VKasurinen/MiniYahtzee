@@ -41,7 +41,7 @@ const Home = ({ navigation }) => {
     <View style={styles.container}>
       <AntDesign
         name="exclamationcircle"
-        size={60}
+        size={50}
         color="#0088ff"
         style={styles.icon}
       />
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   rulesText: {
-    fontSize: 17,
+    fontSize: 16,
     textAlign: "justify",
     fontWeight: "500",
     lineHeight: 22,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#0088ff",
     padding: 10,
-    marginBottom: 80,
+    marginBottom: 100,
     borderRadius: 15,
     alignItems: "center",
     marginVertical: 10,
