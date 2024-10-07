@@ -52,10 +52,6 @@ export default function App() {
             <Tab.Screen name="Scoreboard" component={Scoreboard} />
           </Tab.Navigator>
         </View>
-
-        <View style={styles.footerContainer}>
-          <Footer />
-        </View>
       </View>
     </NavigationContainer>
   );
@@ -68,15 +64,5 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  footerContainer: {
-    position: "absolute",
-    bottom: 50,
-    left: 0,
-    right: 0,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f8f8f8",
-  },
+  }
 });

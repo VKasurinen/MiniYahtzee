@@ -4,6 +4,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SCOREBOARD_KEY, BONUS_POINTS_LIMIT } from "../constants/Game";
+import Footer from "./Footer";
 
 const Gameboard = () => {
   const route = useRoute();
@@ -11,13 +12,7 @@ const Gameboard = () => {
 
   const [nbrOfThrowsLeft, setNbrOfThrowsLeft] = useState(3);
   const [diceValues, setDiceValues] = useState(Array(5).fill(null));
-  const [lockedDice, setLockedDice] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
+  const [lockedDice, setLockedDice] = useState([false,false,false,false,false,]);
   const [totalPoints, setTotalPoints] = useState(0);
   const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0));
   const [selectedPoints, setSelectedPoints] = useState(Array(6).fill(0));
@@ -142,15 +137,7 @@ const Gameboard = () => {
       setDiceValues(newDiceValues);
     }
   };
-
-  const diceIcons = [
-    "dice-one",
-    "dice-two",
-    "dice-three",
-    "dice-four",
-    "dice-five",
-    "dice-six",
-  ];
+  const diceIcons = ["dice-one","dice-two","dice-three","dice-four","dice-five","dice-six",];
 
   return (
     <View style={styles.container}>
@@ -245,6 +232,10 @@ const Gameboard = () => {
       </View>
 
       <Text style={styles.playerNameText}>Player: {playerName}</Text>
+
+      <View style={styles.footerContainer}>
+        <Footer />
+      </View>
     </View>
   );
 };
@@ -340,6 +331,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     textAlign: "center",
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 10,
+    left: 0,
+    right: 0,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
   },
 });
 

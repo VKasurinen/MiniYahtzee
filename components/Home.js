@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AntDesign } from "@expo/vector-icons";
+import Footer from "./Footer";
 import {
   NBR_OF_DICES,
   NBR_OF_THROWS,
@@ -61,6 +62,10 @@ const Home = ({ navigation }) => {
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>OK</Text>
           </TouchableOpacity>
+
+          <View style={styles.footerContainer}>
+            <Footer />
+          </View>
         </>
       )}
 
@@ -75,6 +80,9 @@ const Home = ({ navigation }) => {
           >
             <Text style={styles.buttonText}>Play</Text>
           </TouchableOpacity>
+          <View style={styles.footerContainer}>
+            <Footer />
+          </View>
         </>
       )}
     </View>
@@ -135,6 +143,16 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
   },
 });
 

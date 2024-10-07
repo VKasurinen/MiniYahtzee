@@ -9,6 +9,7 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SCOREBOARD_KEY } from "../constants/Game";
+import Footer from "./Footer";
 
 const Scoreboard = () => {
   const [scores, setScores] = useState([]);
@@ -94,6 +95,10 @@ const Scoreboard = () => {
           <Text style={styles.deleteButtonText}>Delete All Scores</Text>
         </TouchableOpacity>
       )}
+
+      <View style={styles.footerContainer}>
+        <Footer />
+      </View>
     </View>
   );
 };
@@ -161,6 +166,16 @@ const styles = StyleSheet.create({
     flex: 0.8,
     width: "100%",
     alignItems: "center",
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 10,
+    left: 0,
+    right: 0,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
   },
 });
 
