@@ -32,7 +32,6 @@ const Scoreboard = () => {
     }
   };
 
-  // Function to format date as "28.9.2024 15.22"
   const formatDate = (dateString) => {
     const date = new Date(dateString);
 
@@ -43,7 +42,7 @@ const Scoreboard = () => {
     const minutes = date.getMinutes().toString().padStart(2, "0"); // ensures minutes are always two digits
 
     // Return the formatted string
-    return `${day}.${month}.${year} ${hours}.${minutes}`;
+    return `${day}.${month}.${year}, ${hours}.${minutes}`;
   };
 
   const renderScoreRow = ({ item, index }) => {
@@ -135,6 +134,7 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 16,
+    minWidth: 120,
     color: "#888",
     width: "30%",
   },
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     position: "absolute",
-    bottom: 10,
+    bottom: 0,
     left: 0,
     right: 0,
     height: 50,

@@ -16,12 +16,14 @@ const Gameboard = () => {
   const [totalPoints, setTotalPoints] = useState(0);
   const [selectedNumbers, setSelectedNumbers] = useState(Array(6).fill(0));
   const [selectedPoints, setSelectedPoints] = useState(Array(6).fill(0));
+  const [isGameOver, setIsGameOver] = useState(false);
 
   // Save the score once all numbers are selected and totalPoints is updated
   useEffect(() => {
     if (selectedNumbers.every((num) => num !== 0)) {
       saveScore();
       alert("Game over! All numbers are selected.");
+      setIsGameOver(true); // Set game over state
     }
   }, [totalPoints, selectedNumbers]);
 
@@ -137,6 +139,17 @@ const Gameboard = () => {
       setDiceValues(newDiceValues);
     }
   };
+
+  const handleNewGame = () => {
+    // Reset all state variables
+    setNbrOfThrowsLeft(3);
+    setDiceValues(Array(5).fill(null));
+    setLockedDice([false, false, false, false, false]);
+    setTotalPoints(0);
+    setSelectedNumbers(Array(6).fill(0));
+    setSelectedPoints(Array(6).fill(0));
+    setIsGameOver(false); // Reset game over state
+  };
   
   const diceIcons = ["dice-one","dice-two","dice-three","dice-four","dice-five","dice-six",];
 
@@ -179,10 +192,10 @@ const Gameboard = () => {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={handleThrowDices}
-        disabled={nbrOfThrowsLeft === 0}
+        onPress={isGameOver ? handleNewGame : handleThrowDices} // Change action based on game state
+        disabled={isGameOver && nbrOfThrowsLeft === 0} // Allow button when game is over
       >
-        <Text style={styles.buttonText}>THROW DICES</Text>
+        <Text style={styles.buttonText}>{isGameOver ? "PLAY NEW GAME" : "THROW DICES"}</Text>
       </TouchableOpacity>
 
       <Text style={styles.totalText}>Total: {totalPoints}</Text>
@@ -334,7 +347,7 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     position: "absolute",
-    bottom: 10,
+    bottom: 0,
     left: 0,
     right: 0,
     height: 50,
