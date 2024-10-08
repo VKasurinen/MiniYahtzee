@@ -1,24 +1,9 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Keyboard,
-} from "react-native";
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AntDesign } from "@expo/vector-icons";
 import Footer from "./Footer";
-import {
-  NBR_OF_DICES,
-  NBR_OF_THROWS,
-  MIN_SPOT,
-  MAX_SPOT,
-  BONUS_POINTS_LIMIT,
-  BONUS_POINTS,
-  GAMERULES,
-} from "../constants/Game";
+import {GAMERULES} from "../constants/Game";
 
 const Home = ({ navigation }) => {
   const [playerName, setPlayerName] = useState("");

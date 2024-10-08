@@ -6,7 +6,6 @@ import Home from "./components/Home";
 import Gameboard from "./components/Gameboard";
 import Scoreboard from "./components/Scoreboard";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 import { AntDesign } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();

@@ -137,6 +137,7 @@ const Gameboard = () => {
       setDiceValues(newDiceValues);
     }
   };
+  
   const diceIcons = ["dice-one","dice-two","dice-three","dice-four","dice-five","dice-six",];
 
   return (
@@ -198,7 +199,6 @@ const Gameboard = () => {
                 : selectedPoints[num - 1]}
             </Text>
             <TouchableOpacity
-              //rgba(255, 133, 133, 0.6)
               style={[
                 styles.diceButton,
                 selectedNumbers[num - 1] !== 0
@@ -210,7 +210,7 @@ const Gameboard = () => {
                         Math.max(
                           ...diceValues.filter((_, index) => lockedDice[index])
                         ))
-                  ? { backgroundColor: "rgba(255, 133, 133, 0.6)" }
+                  ? { backgroundColor: "rgba(255, 133, 133, 0.6)" }  //rgba(255, 133, 133, 0.6)
                   : { backgroundColor: "#0088ff" },
               ]}
               onPress={() => handleSelectNumber(num)}
