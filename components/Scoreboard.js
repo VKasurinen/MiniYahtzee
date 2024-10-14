@@ -1,27 +1,34 @@
 import React, { useEffect, useState } from "react";
-import {View, Text, StyleSheet, FlatList, TouchableOpacity,} from "react-native";
+import {View,Text,StyleSheet,FlatList,TouchableOpacity,} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SCOREBOARD_KEY } from "../constants/Game";
 import Footer from "./Footer";
+import { useNavigation } from "@react-navigation/native";
 
 const Scoreboard = () => {
   const [scores, setScores] = useState([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const loadScores = async () => {
       try {
         const storedScores = await AsyncStorage.getItem(SCOREBOARD_KEY);
         if (storedScores) {
-          setScores(JSON.parse(storedScores));
+          const parsedScores = JSON.parse(storedScores);
+          setScores(parsedScores);
+          console.log("Loaded scores:", parsedScores);
         }
-      } catch (e) {
-        console.error("Failed to load scores", e);
+      } catch (error) {
+        console.error("Failed to load scores", error);
       }
     };
 
     loadScores();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", loadScores); // Re-load scores when focused
+
+    return unsubscribe; // Cleanup listener on unmount
+  }, [navigation]);
 
   const handleDeleteScores = async () => {
     try {
@@ -34,23 +41,22 @@ const Scoreboard = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-  
+
     // Get the local device time zone offset
     const timezoneOffset = date.getTimezoneOffset() * 60000; // Offset in milliseconds
-  
+
     // Adjust the date by the local time zone offset
     const localDate = new Date(date.getTime());
-  
+
     const day = localDate.getDate();
     const month = localDate.getMonth() + 1; // getMonth() is zero-based
     const year = localDate.getFullYear();
     const hours = localDate.getHours();
     const minutes = localDate.getMinutes().toString().padStart(2, "0"); // ensures minutes are always two digits
-  
+
     // Return the formatted string
     return `${day}.${month}.${year}, ${hours}.${minutes}`;
   };
-  
 
   const renderScoreRow = ({ item, index }) => {
     const ranking = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][index]; // Display ranking based on index

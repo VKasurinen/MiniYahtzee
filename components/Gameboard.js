@@ -4,11 +4,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import {
-  SCOREBOARD_KEY,
-  BONUS_POINTS_LIMIT,
-  BONUS_POINTS,
-} from "../constants/Game";
+import {SCOREBOARD_KEY, BONUS_POINTS_LIMIT, BONUS_POINTS} from "../constants/Game";
 import Footer from "./Footer";
 
 const Gameboard = () => {
@@ -24,7 +20,6 @@ const Gameboard = () => {
   const [selectedPoints, setSelectedPoints] = useState(Array(6).fill(0));
   const [isGameOver, setIsGameOver] = useState(false);
   const [bonusApplied, setBonusApplied] = useState(false);
-
 
   // Save the score once all numbers are selected and totalPoints is updated
   useEffect(() => {
@@ -50,34 +45,36 @@ const Gameboard = () => {
         totalScore: totalPoints,
         date: new Date().toISOString(),
       };
-  
+
       const storedScores = await AsyncStorage.getItem(SCOREBOARD_KEY);
       const scores = storedScores ? JSON.parse(storedScores) : [];
-  
+
       // Add the new score to the array
       scores.push(newScore);
       scores.sort((a, b) => b.totalScore - a.totalScore);
-  
+
       // Save the top 7 scores back to AsyncStorage
-      await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(scores.slice(0, 7)));
-  
+      await AsyncStorage.setItem(
+        SCOREBOARD_KEY,
+        JSON.stringify(scores.slice(0, 7))
+      );
+
       return true; // Indicate success
     } catch (error) {
       console.error("Failed to save score", error);
       return false; // Indicate failure
     }
   };
-  
 
   const navigateToScoreboard = async () => {
     console.log("Attempting to save score...");
-
     const isSaved = await saveScore(); // Ensure score is saved
     console.log("Score saved:", isSaved);
-
     if (isSaved) {
-      console.log("Navigating to Scoreboard");
-      navigation.navigate("Scoreboard"); // Navigate only if saved successfully
+      // Delay navigation until the score is fully saved
+      setTimeout(() => {
+        navigation.navigate("Scoreboard");
+      }, 1000); // Adjust the delay if necessary
     } else {
       console.log("Failed to save score, not navigating.");
     }
@@ -150,7 +147,7 @@ const Gameboard = () => {
     }
   };
 
-  const handleNewGame = () => {
+  const handleNewGame = async () => {
     // Reset all state variables
     setNbrOfThrowsLeft(3);
     setDiceValues(Array(5).fill(null));
