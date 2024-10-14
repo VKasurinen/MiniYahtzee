@@ -34,16 +34,23 @@ const Scoreboard = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-
-    const day = date.getDate();
-    const month = date.getMonth() + 1; // getMonth() is zero-based
-    const year = date.getFullYear();
-    const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, "0"); // ensures minutes are always two digits
-
+  
+    // Get the local device time zone offset
+    const timezoneOffset = date.getTimezoneOffset() * 60000; // Offset in milliseconds
+  
+    // Adjust the date by the local time zone offset
+    const localDate = new Date(date.getTime());
+  
+    const day = localDate.getDate();
+    const month = localDate.getMonth() + 1; // getMonth() is zero-based
+    const year = localDate.getFullYear();
+    const hours = localDate.getHours();
+    const minutes = localDate.getMinutes().toString().padStart(2, "0"); // ensures minutes are always two digits
+  
     // Return the formatted string
     return `${day}.${month}.${year}, ${hours}.${minutes}`;
   };
+  
 
   const renderScoreRow = ({ item, index }) => {
     const ranking = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][index]; // Display ranking based on index
